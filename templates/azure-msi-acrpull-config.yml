@@ -1,0 +1,19 @@
+# Azure/msi-acrpull configuration
+# See: https://github.com/Azure/msi-acrpull#how-to-use
+apiVersion: msi-acrpull.microsoft.com/v1beta1
+kind: AcrPullBinding
+metadata:
+  name: healthcheckapp
+spec:
+  group: msi-acrpull.microsoft.com
+  releaseName: healthcheckapp
+  acrServer: {{ .Values.AFDContainerRegistry }}
+---
+# Grant geneva service account access to pull from ACR
+apiVersion: msi-acrpull.microsoft.com/v1beta1
+kind: AcrPullBinding
+metadata:
+  name: atm-healthgraph-geneva
+spec:
+  acrServer: {{ .Values.AFDContainerRegistry }}
+  serviceAccountName: geneva-service-account

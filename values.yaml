@@ -1,0 +1,23 @@
+# Default replacement values in the chart template files.
+# The values labeled "replace" MUST be overwritten by the installer of the chart.
+ClusterType: AKS
+AFDContainerRegistry: atmprobeplaneprevcontainerregistry
+
+replicaCount: 1
+
+genevaSecrets:
+  mode: csi        # Set to manual if we want to revert
+
+csi:
+  keyvaultName: AtmProbePlanePrevKv-SCUS
+  mdsdCert: replace # update
+  mdmCert: replace # update
+  cloudName: Public
+
+MsiClientId: ""
+
+image:
+  repository: atmprobeplaneprevcontainerregistry.azurecr.io/images/health-check-app-image:v1.0
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v1"

@@ -1,0 +1,45 @@
+# Azure/key vault configuration
+# Source: https://secrets-store-csi-driver.sigs.k8s.io/getting-started/installation.html#alternatively-deployment-using-yamls
+
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: mdsd-secrets
+spec:
+  provider: azure
+  parameters:
+    keyvaultName: {{ .Values.csi.keyvaultName | quote }}
+    cloudName: {{ .Values.csi.cloudName | quote }}
+    cloudEnvFileName: ""
+    objects: |
+      array:
+        - |
+          objectName: {{ .Values.csi.mdsdCert }}
+          objectType: secret
+          objectAlias: cert.pem
+    tenantId: "DummyTenantID"                 
+
+---
+
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: mdm-secrets
+spec:
+  provider: azure
+  parameters:
+    keyvaultName: {{ .Values.csi.keyvaultName | quote }}
+    cloudName: {{ .Values.csi.cloudName | quote }}
+    cloudEnvFileName: "/vault-config/customCloudKVconfig.json"
+    objects: |
+      array:
+        - |
+          objectName: {{ .Values.csi.mdmCert }}
+          objectType: secret
+          objectAlias: mdm-key.pem
+        - |
+          objectName: {{ .Values.csi.mdmCert }}
+          objectType: cert
+          objectAlias: mdm-cert.pem
+    tenantId: "DummyTenantID"                
+

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: health-graph-configmap
+  namespace: default
+data: 
+  CM_HG_CONFIG_FILE: /app/HealthGraphConfigs/ConfigPreviewSCUS.json

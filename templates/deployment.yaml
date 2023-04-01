@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthgraphapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: healthgraphapp
+  template:
+    metadata:
+      labels:
+        app: healthgraphapp
+    spec:
+      containers:
+      - name: healthgraphapp
+        image: atmprobeplaneprevcontainerregistry.azurecr.io/images/health-graph-app-image:v7.0
+        ports:
+          # Define the ports which Orleans uses
+          - containerPort: 11111
+          - containerPort: 30000
+          - containerPort: 8084
+        env:
+        - name: HealthGraphConfigFile
+          valueFrom:
+            configMapKeyRef:
+              name: health-graph-configmap
+              key: CM_HG_CONFIG_FILE
+        - name: HealthGraphCosmosDBConnectionString   # Environment variable name used in code
+          valueFrom:
+            secretKeyRef:
+              name: hg-kv-secret
+              key: SEC_COSMOSDB_CONN_PRIM_VARIABLE 
+        - name: HealthGraphOrleansAzureStorageConnectionString   # Environment variable name used in code
+          valueFrom:
+            secretKeyRef:
+              name: hg-kv-secret
+              key: SEC_PP_HG_STORE_CONN_PRIM_VARIABLE
+        - name: HealthGraphProbesAzureStorageConnectionString   # Environment variable name used in code
+          valueFrom:
+            secretKeyRef:
+              name: hg-kv-secret
+              key: SEC_EP_HEALTH_STAT_STORe_CONN_PRIM_VARIABLE
+        volumeMounts:
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+         - containerPort: 80
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: kv-secret-provider
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthgraphapp
+spec:
+  selector:
+    app: healthgraphapp
+  type: LoadBalancer
+  ports:
+  - port: 80
